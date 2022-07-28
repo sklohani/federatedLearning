@@ -18,10 +18,8 @@ def getTestDataset():
     return x, y
 
 ## Import validation data
-x, y = getTestDataset()
-y = np.reshape(y, (y.shape[0],))
-x_val = x[5000:5500]
-y_val = y[5000:5500]
+x_val, y_val = getTestDataset()
+y_val = np.reshape(y_val, (y_val.shape[0],))
 
 ## Scale validation data
 scaler = MinMaxScaler()
