@@ -8,29 +8,15 @@ from sklearn.preprocessing import MinMaxScaler
 import scipy.io as sio
 import sys
 
-## Method to get test data
-def getTestDataset():
-    database = sio.loadmat('../testData/data_base_all_sequences_random.mat')
-
-    x = database['Data_test_2']
-    y = database['label_test_2']
-
-    return x, y
-
 ## Import train data
 data = pd.read_csv("../data/data/node03/data.csv", index_col=0)
 x_train = data[data.columns[0:512]]
 y_train = data[data.columns[-1]]
 
-## Import test data
-x_test, y_test = getTestDataset()
-y_test = np.reshape(y_test, (y_test.shape[0],))
-
 ## Scale train and test data
 scaler = MinMaxScaler()
-scaler_model = scaler.fit(x_test)
+scaler_model = scaler.fit(x_train)
 x_train_scaled = scaler_model.transform(x_train)
-x_test_scaled = scaler_model.transform(x_test)
 
 ## Creating Model
 model = tf.keras.models.Sequential([
@@ -67,10 +53,10 @@ class CifarClient(fl.client.NumPyClient):
     
     def evaluate(self, parameters, config):
         model.set_weights(parameters)
-        loss, accuracy = model.evaluate(x_test_scaled, y_test)
+        loss, accuracy = model.evaluate(x_train_scaled, y_train)
         loss_list.append(loss)
         accuracy_list.append(accuracy)
-        return loss, len(x_test_scaled), {"Accuracy": accuracy}
+        return loss, len(x_train_scaled), {"Accuracy": accuracy}
 
 ## Start Client
 server_address='localhost:'+str(sys.argv[1])
